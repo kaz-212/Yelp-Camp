@@ -1,6 +1,7 @@
 <!-- this layout line passes the rest of the doc to the boilerplate template where it says " body " -->
 <!-- this is thanks to ejs-mate -->
 <% layout('/layouts/boilerplate') %>
+<div id="map" style="width: 100%; height: 500px"></div>
 
 <h1>All Campgrounds</h1>
 <a href="/campgrounds/new">New Campground</a>
@@ -30,3 +31,10 @@
 
   <% } %>
 </ul>
+
+<script>
+  const mapToken = '<%- process.env.MAPBOX_TOKEN %>'
+  const campgrounds = {features: <%- JSON.stringify(campgrounds) %>} // 'features' added to conform to the syntax of the mapbox data
+</script>
+
+<script src="/javascripts/clusterMap.js"></script>
