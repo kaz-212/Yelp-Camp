@@ -27,7 +27,8 @@ const seedDB = async () => {
     const price = Math.floor(Math.random() * 20 + 10)
     const camp = new Campground({
       author: '5fab01e9ed1e7c0dc02dc301',
-      location: `${cities[random231].city}, ${cities[random231].admin}`,
+      // location: `${cities[random231].city}, ${cities[random231].admin}`,
+      location: 'Finchley, London',
       geometry: { coordinates: [-0.176467, 51.61378], type: 'Point' },
       title: `${sample(descriptors)} ${sample(places)}`,
       description:
