@@ -15,17 +15,21 @@ const passport = require('passport') // just need to require regualar passport n
 const localStrategy = require('passport-local')
 const User = require('./models/user')
 const helmet = require('helmet') // used for added security (check docs to see exactly what it does)
+const MongoDBStore = require('connect-mongo')(session) //npm i connect-mongo. used to save session info in mongo rather than locally
 
 // package prohibits things like '$' or '.' being sent in the url/req.params/req.body to protect you from mongo injections
 const mongoSanitize = require('express-mongo-sanitize')
 
-// getting thr routers
+// getting the routers
 const campgrounds = require('./routes/campgrounds')
 const reviews = require('./routes/reviews')
 const users = require('./routes/users')
 
+// const dbUrl = process.env.DB_URL // pass this in to mongoose.connect in production mode
+
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp'
 // connect mongoose - arguments stop depreciation warnings
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
@@ -55,9 +59,22 @@ app.use(
   })
 )
 
+const secret = process.env.SECRET || 'this should be a better secret'
+
+const store = new MongoDBStore({
+  url: dbUrl,
+  secret,
+  touchAfter: 24 * 60 * 60 // 24 hours in seconds (updates after this long rather than every time user refreshes)
+})
+
+store.on('error', function (e) {
+  console.log('session store error', e)
+})
+
 const sessionConfig = {
+  store,
   name: 'session', // changes name of cookie from default name. makes it harder for people to have automatic code that finds session cookie
-  secret: 'this should be a better secret',
+  secret,
   resave: false, // stop depr. warnings
   saveUninitialized: true, // stop depr. warnings
   cookie: {
