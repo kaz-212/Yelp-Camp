@@ -15,6 +15,9 @@ const passport = require('passport') // just need to require regualar passport n
 const localStrategy = require('passport-local')
 const User = require('./models/user')
 
+// package prohibits things like '$' or '.' being sent in the url/req.params/req.body to protect you from mongo injections
+const mongoSanitize = require('express-mongo-sanitize')
+
 // getting thr routers
 const campgrounds = require('./routes/campgrounds')
 const reviews = require('./routes/reviews')
@@ -44,7 +47,12 @@ app.set('useFindAndModify', false)
 
 app.use(express.urlencoded({ extended: true })) // parses the post requests
 app.use(methodOverride('_method'))
-app.use(express.static(path.join(__dirname, 'public'))) // sets the 'public' directory to be used for our js and stylesheets (staticc files)
+app.use(express.static(path.join(__dirname, 'public'))) // sets the 'public' directory to be used for our js and stylesheets (static files)
+app.use(
+  mongoSanitize({
+    replaceWith: '_' // replaces prohibited characters with '_' instead of removing request entirely
+  })
+)
 
 const sessionConfig = {
   secret: 'this should be a better secret',
