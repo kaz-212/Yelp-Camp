@@ -1,6 +1,8 @@
 // ALL THE CAMPGROUND ROUTING LOGIC
 
 const Campground = require('../models/campground')
+const { cloudinary } = require('../cloudinary')
+
 // mapbox
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding')
 const mapBoxToken = process.env.MAPBOX_TOKEN
@@ -28,7 +30,7 @@ module.exports.createCampground = async (req, res) => {
   campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }))
   campground.author = req.user._id
   await campground.save()
-  console.log(campground)
+  // console.log(campground)
   req.flash('success', 'Successfully made a new campground!')
   res.redirect(`campgrounds/${campground._id}`)
 }
@@ -66,15 +68,19 @@ module.exports.renderEditForm = async (req, res) => {
 module.exports.updateCampground = async (req, res) => {
   // console.log(req.body.campground)
   const { id } = req.params
-  console.log(req.body)
+  // console.log(req.body)
   const campground = await Campground.findByIdAndUpdate(id, req.body.campground)
   // req.files.map creates an array so we dont want to push an array into the images array bcus then we'll have nested arrays so spread
   const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
   campground.images.push(...imgs)
   await campground.save()
+  //delete from cloudinary too
   if (req.body.deleteImages) {
+    for (let filename of req.body.deleteImages) {
+      await cloudinary.uploader.destroy(filename)
+    }
     await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
-    console.log(campground)
+    // console.log(campground)
   }
   req.flash('success', 'Successfully edited campground!')
   res.redirect(`/campgrounds/${id}`)
@@ -83,7 +89,12 @@ module.exports.updateCampground = async (req, res) => {
 // need to also delete the reviews associated w the campground. do this using middleware in models/campground.js
 module.exports.deleteCampground = async (req, res) => {
   const { id } = req.params
-  await Campground.findByIdAndDelete(id)
+  // delete from mongo
+  const campground = await Campground.findByIdAndDelete(id)
+  // delete from cloudinary
+  for (let img of campground.images) {
+    await cloudinary.uploader.destroy(img.filename)
+  }
   req.flash('success', 'Campground deleted!')
   res.redirect('/campgrounds')
 }

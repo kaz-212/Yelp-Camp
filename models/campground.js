@@ -4,15 +4,21 @@ const Schema = mongoose.Schema
 
 const opts = { toJSON: { virtuals: true } }
 
+// taken out images so that I can add a vitrtual property to the ImageSchema cus you can only add virtual properties directly to schemas not to things nested inside schemas.
+const ImageSchema = new Schema({
+  url: String,
+  filename: String
+})
+
+// virtual property just derived from other stuff in schema so no need to save twice. this manipulates the url so that it includes w_200 which is from clcoudinary docs to request 200px version of the image. accessable by 'campgrounds.images.thumbnail'
+ImageSchema.virtual('thumbnail').get(function () {
+  return this.url.replace('/upload', '/upload/w_200')
+})
+
 const CampgroundSchema = new Schema(
   {
     title: String,
-    images: [
-      {
-        url: String,
-        filename: String
-      }
-    ],
+    images: [ImageSchema],
     // from mongoose docs
     geometry: {
       type: {

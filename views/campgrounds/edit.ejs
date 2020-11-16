@@ -35,11 +35,12 @@
         <input type="file" class="form-control" id="image" name="image" multiple >
       </div>
       <div class="mb-3">
+        <!-- forEach is good when you want an index -->
         <% campground.images.forEach( function (img, i) { %> 
-          <img src="<%= img.url %> " class="img-thumbnail" alt="">
+          <img src="<%= img.thumbnail %> " class="img-thumbnail" alt="">
           <div class="form-check-inline">
-            <!-- each checbox has the value of the path. any checkbox that is checked, its value is passed to deleteImages array  -->
-            <input type="checkbox" id="image-<%= i %>" name="deleteImages[]" value="<%= img.filename %> ">
+            <!-- each checbox has the value of the path. any checkbox that is checked, its value is passed to deleteImages array. the value is the filename of the image  -->
+            <input type="checkbox" id="image-<%= i %>" name="deleteImages[]" value="<%= img.filename %>">
             <label for="image-<%= i %>">delete ?</label>
           </div>
         <% }) %> 
