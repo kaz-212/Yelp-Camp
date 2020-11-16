@@ -5,7 +5,7 @@
   <h1 class="text-center">New Campground</h1>
   <div class="col-md-6 offset-md-3">
     <!-- enctype usually urlencoded, but for images we need multipart/form-data -->
-    <form action="/campgrounds" method="POST" novalidate class="validated-form" enctype="multipart/form-data"
+    <form action="/campgrounds" method="POST" novalidate class="validated-form" enctype="multipart/form-data">
       <div class="mb-3">
         <label class="form-label" for="title">Title</label>
         <!-- campground[foo], campground[bar], groups foo and bar under campground when its sent -->
@@ -21,9 +21,9 @@
       <!-- <input type="file" name="image" id="image" multiple> -->
       <div class="input-group mb-3">
         <label class="input-group-text" for="image">Upload</label>
-        <input type="file" class="form-control" id="image" name="image" multiple >
+        <input type="file" class="form-control" id="image" name="image" multiple />
       </div>
-       <!-- <div class="mb-3">
+      <!-- <div class="mb-3">
         <label class="form-label" for="image">Image url</label>
         <input class="form-control" type="text" id="image" name="campground[image]" required />
         <div class="valid-feedback">Looks good!</div>

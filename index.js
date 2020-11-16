@@ -14,6 +14,7 @@ const methodOverride = require('method-override')
 const passport = require('passport') // just need to require regualar passport not passport-local-mongoose
 const localStrategy = require('passport-local')
 const User = require('./models/user')
+const helmet = require('helmet') // used for added security (check docs to see exactly what it does)
 
 // package prohibits things like '$' or '.' being sent in the url/req.params/req.body to protect you from mongo injections
 const mongoSanitize = require('express-mongo-sanitize')
@@ -55,11 +56,13 @@ app.use(
 )
 
 const sessionConfig = {
+  name: 'session', // changes name of cookie from default name. makes it harder for people to have automatic code that finds session cookie
   secret: 'this should be a better secret',
   resave: false, // stop depr. warnings
   saveUninitialized: true, // stop depr. warnings
   cookie: {
-    httpOnly: true, // for added security (docs )
+    httpOnly: true, // means cookies not available through js so cannot get cookie through XSS for e.g.
+    // secure: true, // means cookies can only be configured over secure connection like https (http secure). wont work on localhost
     expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // date.now in milliseconds, this makes cookie expire in a week
     maxAge: 1000 * 60 * 60 * 24 * 7 //this does the same (don't need both)
   }
@@ -67,6 +70,52 @@ const sessionConfig = {
 
 app.use(session(sessionConfig))
 app.use(flash())
+app.use(helmet()) // enables all the helmet middleware except contentSecurityPolicy
+
+// this configuration from helmet says that these are all the sites we are allowed to get stuff from. nothing else.
+const scriptSrcUrls = [
+  'https://stackpath.bootstrapcdn.com/',
+  'https://api.tiles.mapbox.com/',
+  'https://api.mapbox.com/',
+  'https://kit.fontawesome.com/',
+  'https://cdnjs.cloudflare.com/',
+  'https://cdn.jsdelivr.net'
+]
+const styleSrcUrls = [
+  'https://kit-free.fontawesome.com/',
+  'https://stackpath.bootstrapcdn.com/',
+  'https://api.mapbox.com/',
+  'https://api.tiles.mapbox.com/',
+  'https://fonts.googleapis.com/',
+  'https://use.fontawesome.com/'
+]
+const connectSrcUrls = [
+  'https://api.mapbox.com/',
+  'https://a.tiles.mapbox.com/',
+  'https://b.tiles.mapbox.com/',
+  'https://events.mapbox.com/'
+]
+const fontSrcUrls = []
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", 'blob:'],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        'blob:',
+        'data:',
+        'https://res.cloudinary.com/dqyymjqpg/', //SHOULD MATCH MY CLOUDINARY ACCOUNT!
+        'https://images.unsplash.com/'
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls]
+    }
+  })
+)
 
 // ======== LOGIN / PASSPORT ========
 app.use(passport.initialize())
