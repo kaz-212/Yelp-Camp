@@ -1,6 +1,5 @@
-const { sanitize } = require('express-mongo-sanitize')
 const BaseJoi = require('joi') //nmp i joi
-const samitizeHtml = require('sanitize-html')
+const sanitizeHtml = require('sanitize-html')
 // using joi to validate stuff coming in on the server side. in the object campground which comes in, there must be req. title and price etc.
 
 // defining an extension on joi.string() called escapeHtml. this should protect us from XSS attacks as doesnt allow us to input html into fields
