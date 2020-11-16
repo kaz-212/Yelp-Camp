@@ -1,6 +1,10 @@
 #cluster-map {
-  width: 100%;
+  width: 100vw;
   height: 500px;
+  position: relative;
+  margin-left: -50vw;
+  margin-top: -48px;
+  left: 50%;
 }
 
 #show-map {
