@@ -176,4 +176,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render('error', { err })
 })
 
-app.listen(3000, () => console.log("You're good on port 3000"))
+// this will be present on heroku. if not (i.e. we are in dev mode, will default to 3000)
+const port = process.env.PORT || 3000
+app.listen(port, () => console.log(`You're good on port ${port}`))
