@@ -1,10 +1,13 @@
 mapboxgl.accessToken = mapToken
 const map = new mapboxgl.Map({
-  container: 'map',
+  container: 'cluster-map', // id of map div
   style: 'mapbox://styles/mapbox/light-v10',
   center: [-4.145243, 54.033439],
   zoom: 4
 })
+
+// from docs, add controls on to the map
+map.addControl(new mapboxgl.NavigationControl())
 
 map.on('load', function () {
   // Add a new source from our GeoJSON data and
